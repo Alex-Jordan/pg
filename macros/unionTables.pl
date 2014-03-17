@@ -167,6 +167,12 @@ sub EndTable {
  #    valign => "type"        Specified vertical alignment of row
  #                            (default:  valign => "MIDDLE")
  #
+ #    headers => array reference, "ALL", or "NONE"
+ #                            Specifies which columns are table headers in HTML
+ #                            (default:  headers => "NONE")
+ #       For example in a row with three columns, headers=>[1,1,1] is equivalent to headers=>'ALL'
+ #       And in a row with three columns, headers=>[1] or headers=>[1,0,0] give the first column the header attribute
+ #
 
 =cut
 
@@ -176,11 +182,17 @@ sub Row {
   my %options = (
     indent => 0, separation => 30,
     align => "LEFT", valign => "MIDDLE",
+    headers => "NONE",
     @_
   );
 
   my ($cind,$csep) = ($options{indent},$options{separation});
   my ($align,$valign) = ($options{align},$options{valign});
+  my @headers = ('TD') x @row;
+  @headers = ('TH') x @row if (uc($options{headers}) eq "ALL");
+  for my $i (0..@{$options{headers}})
+    {$headers[$i] = 'TH' if ($options{headers}->[$i]);
+    };
   my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'; $sep = '' if ($csep < 1);
   my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'; $ind = '' if ($cind < 1);
   my $fill = '';
@@ -188,11 +200,17 @@ sub Row {
   $fill = '\hfill' if (uc($align) eq "RIGHT");
   my $vspace = '';
   $vspace = '\noalign{\vskip '.$options{tex_vspace}.'}' if $options{tex_vspace};
+  my $html = "<TR VALIGN=\"$valign\">$ind";
+  for my $c (0..$#row)
+    {$html = $html."<".$headers[$c];
+     $html = $html." ALIGN=\"$align\"" if ($c == 0); #only apply alignment to first column
+     $html = $html.">" .$row[$c]."</".$headers[$c].">";
+     $html = $html.$sep unless ($r == $#row)};
+  $html = $html."</TR>\n";
 
   MODES(
     TeX => '\cr'.$vspace."\n". $fill . join('& ',@row),
-    HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">" .
-      join("</TD>$sep<TD>",@row) . '</TD></TR>'."\n",
+    HTML => $html,
   );
 }
 
@@ -256,6 +274,7 @@ sub AlignedRow {
      $row[$c]."</".$headers[$c].">\n";
       $html = $html.$sep unless ($r == $#row)};
   $html = $html."</TR>\n";  
+
   MODES(
     TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
     HTML => $html,
