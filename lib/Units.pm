@@ -126,7 +126,27 @@ our %known_units = ('m'  => {
                            'factor'    => 60,
                            's'         => 1
                           },
+                  'minute'  => {
+                           'factor'    => 60,
+                           's'         => 1
+                          },
+                  'minutes'  => {
+                           'factor'    => 60,
+                           's'         => 1
+                          },
                   'hr'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'hour'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'hours'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'h'  => {
                            'factor'    => 3600,
                            's'         => 1
                           },
@@ -194,7 +214,23 @@ our %known_units = ('m'  => {
                            'factor'    => 0.0254,
                            'm'         => 1
                           },
+                 'inch'  => {
+                           'factor'    => 0.0254,
+                           'm'         => 1
+                          },
+                 'inches'  => {
+                           'factor'    => 0.0254,
+                           'm'         => 1
+                          },
                  'ft'  => {
+                           'factor'    => 0.3048,
+                           'm'         => 1
+                          },
+                 'feet'  => {
+                           'factor'    => 0.3048,
+                           'm'         => 1
+                          },
+                 'foot'  => {
                            'factor'    => 0.3048,
                            'm'         => 1
                           },
@@ -252,6 +288,11 @@ our %known_units = ('m'  => {
                           },
               'c'  => {
                            'factor'    =>  299792458,	# exact
+                           'm'         => 1,
+                           's'         => -1
+                          },
+              'mph'  => {
+                           'factor'    =>  0.44704,
                            'm'         => 1,
                            's'         => -1
                           },
