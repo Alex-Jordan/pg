@@ -866,12 +866,12 @@ sub string {
 
 sub TeX {
   my $self = shift; my $equation = shift; my $prec = shift;
-  my ($a,$b) = @{$self->{data}}; my $n = "";
+  my ($a,$b) = @{$self->{data}}; my $n = ""; my $stylecommand = "";
   return $a if $b == 1;
   if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
-    {$n = int($a/$b); $a = CORE::abs($a) % $b; $textstyle = '\\textstyle'; $n .= " " unless $a == 0}
+    {$n = int($a/$b); $a = CORE::abs($a) % $b; $stylecommand = '\\textstyle'; $n .= " " unless $a == 0}
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
-  $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{$textstyle\\frac{$a}{$b}}")
+  $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{$stylecommand\\frac{$a}{$b}}")
     unless $a == 0 && $n ne '';
   $n = "\\left($n\\right)" if defined $prec && $prec >= 1;
   return $n;
