@@ -923,7 +923,7 @@ sub cmp_postprocess {
 	    !Value::classMatch($student,'Fraction') ||
 	    $student->isReduced;
   $ans->score(0);
-  $self->cmp_Error($ans,"Your fraction is not reduced") if $ans->{showFractionReduceWarnings};
+  $self->cmp_Error($ans,"Your fraction may or may not be correct, but it is not reduced") if $ans->{showFractionReduceWarnings};
 }
 
 ###########################################################################
