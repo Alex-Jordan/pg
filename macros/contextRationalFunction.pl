@@ -69,8 +69,10 @@ sub checkFactors {
   my $self = shift; my ($l,$r) = @_;
   $self->SUPER::checkFactors($l,$r);
   if (($l->{isPoly}||0) >= 6 || ($r->{isPoly}||0) >= 6) {
-    $self->Error("You can not use multiplication with rational functions as operands ".
-                 "(do you need parentheses around the denominator?)")
+#    $self->Error("You can not use multiplication with rational functions as operands ".
+#                 "(do you need parentheses around the denominator?)")
+    $self->Error("You cannot answer with a product of two rational functions. ".
+                 "(Possibly you need parentheses around your denominator.)")
       if $self->context->flag("singleQuotients");
     $self->{isPoly} = 7; # product containing rational functions
   }
