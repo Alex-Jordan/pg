@@ -158,7 +158,19 @@ sub check_parameters {
 	warn "htmlURL is not defined." unless $self->{htmlURL};
 	warn "tempURL is not defined." unless $self->{tempURL};
 }
-
+sub make_resource_object {
+	my $self = shift;
+	my $aux_file_id =shift;
+	my $ext = shift;
+	my $resource = PGresource->new(
+		$self,                    #parent alias of resource
+		$aux_file_id,             # resource file name
+		$ext,                     # resource type
+		WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
+		DEBUG_messages   => $self->{DEBUG_messages},
+	);	
+	return $resource;
+}
 sub make_alias {
    	my $self = shift;   	
    	my $aux_file_id = shift;
@@ -168,7 +180,6 @@ sub make_alias {
 	my $envir               = $self->{envir}; 
 	my $displayMode         = $self->{displayMode}; 
 	my $pgFileName          = $self->{pgFileName};    # name of .pg file
-	my $envir               = $self->{envir};
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
 	my $tempDirectory       = $self->{tempDirectory};
@@ -227,13 +238,12 @@ sub make_alias {
 	###################################################################
 	unless ( defined $self->get_resource($aux_file_id.".$ext") ) {
     	$self->add_resource($aux_file_id.".$ext", 
-    	                    PGresource->new(
-    	                            $self,                    #parent alias of resource
-    	                            $aux_file_id,             # resource file name
-    	                            $ext,                     # resource type
-    	                            WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
-                                    DEBUG_messages   => $self->{DEBUG_messages},
-    	));
+    						$self->make_resource_object(
+    							$aux_file_id,  # resource file name
+    							$ext           # resource type
+    						)
+    	                   
+    	);
 
     } else {
     	#$self->debug_message( "found existing resource_object $aux_file_id");
@@ -251,6 +261,7 @@ sub make_alias {
 	} elsif (   $ext eq 'gif'  
 		     or $ext eq 'jpg' 
 		     or $ext eq 'png'
+		     or $ext eq 'pdf'
 		    ) {
 		if ($displayMode =~ /^HTML/ ) {
 			################################################################################
@@ -280,14 +291,14 @@ sub make_alias {
 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
 	
-	} elsif ($ext eq 'pdf') {
-		if ($displayMode =~/HTML/) {
-			$self->warning_message("The image $aux_file_id of type pdf cannot yet be displayed in HTML mode");
-		} elsif ($displayMode eq 'TeX') {
-			$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
-		} else {
-			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
-		}
+	#} elsif ($ext eq 'pdf') {
+	#	if ($displayMode =~/HTML/) {
+	#		$self->warning_message("The image $aux_file_id of type pdf cannot yet be displayed in HTML mode");
+	#	} elsif ($displayMode eq 'TeX') {
+	#		$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
+	#	} else {
+	#		die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
+	#	}
 	
 	} else { # $ext is not recognized
 		################################################################################
@@ -909,7 +920,7 @@ sub check_url {
 #	 	unless (-x $check_url_command );
 	 my $response = `$check_url_command $url`; 
 	 # $self->debug_message("check_url: response for url $url is  $response");
-	 return ($response =~ /^$OK_CONSTANT/) ? 1 : 0; 
+	 return ($response =~ /$OK_CONSTANT/) ? 1 : 0; 
 }
 
 # ^variable our %appletCodebaseLocations
