@@ -105,6 +105,14 @@ our %known_units = ('m'  => {
                            'factor'    => 0.0174532925,
                            'rad'       => 1
                           },
+		'degree' => {
+                           'factor'    => 0.0174532925,
+                           'rad'       => 1
+                          },
+                'degrees' => {
+                           'factor'    => 0.0174532925,
+                           'rad'       => 1
+                          },
                 'sr'  => {
                            'factor'    => 1,
                            'rad'       => 2
