@@ -1233,7 +1233,7 @@ sub SOLUTION {
     	TEXT( $PAR, knowlLink(SOLUTION_HEADING(), value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
     	              base64 =>1 ) ) if solution(@_);
     } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
+    	TEXT("\n%%% BEGIN SOLUTION\n",$PAR,SOLUTION_HEADING(), solution(@_).$PAR,"\n%%% END SOLUTION\n") if solution(@_) ;
     } elsif ($displayMode=~/HTML/) {
 		TEXT( $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
     } else {
@@ -1284,7 +1284,7 @@ sub HINT {
 		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
+    	TEXT("\n%%% BEGIN HINT\n",$PAR,HINT_HEADING(), hint(@_).$PAR,"\n%%% END HINT\n") if hint(@_) ;
     } else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
@@ -2195,6 +2195,7 @@ sub beginproblem {
 	 	   ) if ($problemValue  >= 0);
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
+        $out .= MODES( TeX => "\n%%% END beginproblem()\n", HTML => "\n<!-- END beginproblem() -->\n");
 	$out;
 
 }
