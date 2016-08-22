@@ -26,6 +26,7 @@ use PGloadfiles;
 use AnswerHash;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
+use WeBWorK::Debug;
 use MIME::Base64();
 use PGUtil();
 
@@ -100,23 +101,19 @@ sub new {
 sub initialize {
 	my $self = shift;
 	warn "environment is not defined in PGcore" unless ref($self->{envir}) eq 'HASH';
-	
-	
-	
-	
+
 	$self->{displayMode}                = $self->{envir}->{displayMode};
 	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
-
-    $self->{tempDirectory}        = $self->{envir}->{tempDirectory};
-	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = PGalias->new($self->{envir},
-                                        WARNING_messages => $self->{WARNING_messages},
-                                        DEBUG_messages   => $self->{DEBUG_messages},
-                                                 
-	);
-	$self->{maketext} = 
-	  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	$self->{problemSeed}                = $self->{PG_original_problem_seed};
+    $self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
+	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
+    $self->{PG_alias}             		= PGalias->new($self->{envir},
+												WARNING_messages => $self->{WARNING_messages},
+												DEBUG_messages   => $self->{DEBUG_messages},                                           
+										);
+	#$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	$self->{maketext} = $self->{envir}->{language_subroutine};
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -460,7 +457,8 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	my $value = shift;
 	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
 	my $response_group = new PGresponsegroup($label,$label,$value);
-	if (defined($self->{PG_ANSWERS_HASH}->{$label}) ) {
+	#$self->debug_message("adding a response group $response_group");
+	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
 		                                           response  => $response_group, 
 		                                           active    => $self->{PG_ACTIVE});
@@ -477,8 +475,9 @@ sub record_array_name {  # currently the same as record ans name
 	my $self = shift;
 	my $label = shift;
 	my $value = shift;
-	my $response_group = new PGresponsegroup($label,$label,$value);  
-	if (defined($self->{PG_ANSWERS_HASH}->{$label}) ) {
+	my $response_group = new PGresponsegroup($label,$label,$value); 
+	#$self->debug_message("adding a response group $response_group");
+	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
 		                                           response   => $response_group, 
 		                                           active     => $self->{PG_ACTIVE});
@@ -722,8 +721,11 @@ sub insertGraph {
 
 =cut
 sub maketext {
-    my $self = shift;
-	&{ $self->{maketext}}(@_);
+  my $self = shift;
+  # uncomment this to check to see if strings are run through
+  # maketext.  
+  # return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
+  &{ $self->{maketext}}(@_);
 }
 sub includePGtext { 
 	my $self = shift;
