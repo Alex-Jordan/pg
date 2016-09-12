@@ -2356,6 +2356,25 @@ sub iframe {
 	);
 }
 
+#scalable iframe used for videos in PCC set headers
+sub scalableiframe {
+        my $url = shift;
+        my %options = @_;  # options for surrounding div box
+        my $formatted_options = join(" ",
+                         map {qq!$_ = "$options{$_}"!} (keys %options));
+    return "$BBOLD\[ broken link:  $url \] $EBOLD" unless defined($url);
+        MODES(
+                TeX       => "\\framebox{".protect_underbar($url)."}\n",
+                HTML      => qq!\n <div $formatted_options> \n
+                                  <iframe src="$url" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'>
+                                      Your browser does not support iframes.</p>
+                                   </iframe>\n
+                                  </div>\n!,
+        );
+}
+
+
+
 sub helpLink {
 	my $type = shift;
     my $display_text = shift || $type;
