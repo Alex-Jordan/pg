@@ -253,7 +253,7 @@ sub new {
   $context->{parser}{Number} = "Currency::Number";
   $context->{value}{Currency} = "Currency::Currency";
   $context->flags->set(
-    tolerance => .005,
+    tolerance => .005001,
     tolType => "absolute",
     promoteReals => 1,
     forceCommas => 0,
