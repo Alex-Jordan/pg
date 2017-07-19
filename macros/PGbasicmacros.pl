@@ -2708,7 +2708,7 @@ sub image {
 	my %in_options = @opt;
 	my %known_options = (
 		width    => 100,
-		height   => 100,
+		height   => '',
 		tex_size => 800,
 		extra_html_tags => '',
 	);
@@ -2771,9 +2771,11 @@ sub image {
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
+            my $height_attrib = '';
+            $height_attrib = qq{height = "$height"} if ($height); #only display height if it is explicitly given
  			$out = qq!<A HREF= "$imageURL" TARGET="_blank" 
  			         onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;">
- 			         <IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} >
+ 			         <IMG SRC="$imageURL"  WIDTH="$width" $height_attrib $out_options{extra_html_tags} >
  			         </A>
  			!
  		} else {
