@@ -44,8 +44,8 @@ my $pre = ':   ';
 my $emphasis = '\*+|_+';
 my $chars = '\\\\.|[{}[\]\'"]';
 my $ansrule = '\[(?:_+|[ox^])\]\*?';
-my $open = '\[(?:[!<%@$]|::?|``?|\|+ ?)';
-my $close = '(?:[!>%@$]|::?|``?| ?\|+)\]';
+my $open = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
+my $close = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
 my $noop = '\[\]';
 
 my $splitPattern =
@@ -454,11 +454,16 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, options=>["context","reduced"]},
   "[::"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/::\]/, terminateMethod=>'terminateGetString',
+	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, displaystyle=>1, options=>["context","reduced"]},
+  "[:::"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
+               terminator=>qr/:::\]/, terminateMethod=>'terminateGetString',
 	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, display=>1, options=>["context","reduced"]},
   "[`"   => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/\`\]/, terminateMethod=>'terminateGetString',},
   "[``"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
-               terminator=>qr/\`\`\]/, terminateMethod=>'terminateGetString', display=>1},
+               terminator=>qr/\`\`\]/, terminateMethod=>'terminateGetString', displaystyle=>1},
+  "[```"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
+               terminator=>qr/\`\`\`\]/, terminateMethod=>'terminateGetString', display=>1},
   "[!"   => {type=>'image', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/!\]/, terminateMethod=>'terminateGetString',
                cancelNL=>1, options=>["title"]},
@@ -966,8 +971,9 @@ sub Math {
     $obj = $obj->reduce if $item->{reduced};
     $math = $obj->TeX;
   }
-  $math = "\\displaystyle{$math}" if $item->{display};
-  return $math;
+  $math = "\\displaystyle{$math}" if $item->{displaystyle};
+  my $mathmode = ($item->{display}) ? 'display' : 'inline' ;
+  return ($math,$mathmode);
 }
 
 sub Answer {
@@ -1187,7 +1193,7 @@ sub Verbatim {
 
 sub Math {
   my $self = shift;
-  return main::math_ev3($self->SUPER::Math(@_));
+  return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
 ######################################################################
@@ -1327,9 +1333,10 @@ sub Verbatim {
   return $text;
 }
 
+
 sub Math {
   my $self = shift;
-  return main::math_ev3($self->SUPER::Math(@_));
+  return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
 ######################################################################
@@ -1455,7 +1462,7 @@ sub Verbatim {
 
 sub Math {
   my $self = shift;
-  return main::math_ev3($self->SUPER::Math(@_));
+  return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
 
