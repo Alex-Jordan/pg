@@ -77,6 +77,8 @@ my ($PAR,
 	$EUL,
 	$BCENTER,
 	$ECENTER,
+	$BLTR,
+	$ELTR,
 	$HR,
 	$LBRACE,
 	$RBRACE,
@@ -144,6 +146,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::EUL              = EUL();
 	$main::BCENTER          = BCENTER();
 	$main::ECENTER          = ECENTER();
+	$main::BLTR          = BLTR();
+	$main::ELTR          = ELTR();
 	$main::HR				= HR();
 	$main::LBRACE			= LBRACE();
 	$main::RBRACE			= RBRACE();
@@ -197,6 +201,8 @@ EndOfFile
 	$EUL                 = EUL();
 	$BCENTER             = BCENTER();
 	$ECENTER             = ECENTER();
+	$BLTR             = BLTR();
+	$ELTR             = ELTR();
 	$HR				     = HR();
 	$LBRACE			     = LBRACE();
 	$RBRACE			     = RBRACE();
@@ -396,7 +402,7 @@ sub NAMED_ANS_RULE {
 
 	    # Note: codeshard is used in the css to identify input elements 
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" dir="auto" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
         PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
@@ -459,11 +465,17 @@ sub NAMED_ANS_RULE_EXTENSION {
 	} else {
 	    $label = generate_aria_label($name);
 	}
-	# this is the name of the parent answer group
+	# $answer_group_name is the name of the parent answer group
+	# the group name is usually the same as the answer blank name             
+	# when there is only one answer blank. 
+	
+	
+	
 	my $answer_group_name = $options{answer_group_name}//''; 
 	unless ($answer_group_name) {
 		WARN_MESSAGE("Error in NAMED_ANSWER_RULE_EXTENSION: every call to this subroutine needs
-		to have \$options{answer_group_name} defined. Answer blank name: $name");
+		to have \$options{answer_group_name} defined. For a single answer blank this is 
+		usually the same as the answer blank name. Answer blank name: $name");
 	}
     # warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
 	my $answer_value = '';
@@ -484,9 +496,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" dir="auto" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!,
-        PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
+		PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
 	);
 }
 
@@ -1566,6 +1578,8 @@ sub MODES {
 	$EUL    			EUL()  				end underlined type
 	$BCENTER    		BCENTER()   		begin centered environment
 	$ECENTER    		ECENTER()  			end centered environment
+	$BLTR    		BLTR()   		begin left to right environment
+	$ELTR    		ELTR()  			end left to right environment
 	$HR					HR()				horizontal rule
 	$LBRACE				LBRACE()			left brace
 	$LB					LB ()				left brace
@@ -1637,6 +1651,8 @@ sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<
 sub EUL { MODES(TeX => '}',  Latex2HTML => '}', HTML => '</U>', PTX => '</em>'); };
 sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center">', PTX => ''); };
 sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>', PTX => ''); };
+sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">', PTX => ''); };
+sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>', PTX => ''); };
 sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '<lbrace />' ); };  #not for use in math mode
 sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '<rbrace />' ); };  #not for use in math mode
@@ -2894,6 +2910,11 @@ sub image {
 	my $width_ratio = $tex_size*(.001);
 	my @image_list  = ();
 
+    # if height was explicitly given, create string for height attribute to be used in HTML, LaTeX2HTML
+    # otherwise omit a height attribute and allow the browser to use aspect ratio preservation
+    my $height_attrib = '';
+    $height_attrib = qq{height = "$height"} if ($height);
+
  	if (ref($image_ref) =~ /ARRAY/ ) {
 		@image_list = @{$image_ref};
  	} else {
@@ -2926,7 +2947,7 @@ sub image {
 			}
 		} elsif ($displayMode eq 'Latex2HTML') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
-			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
+			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" $height_attrib></A>\n
 			\\end{rawhtml}\n !
  		} elsif ($displayMode eq 'HTML_MathJax'
 	 || $displayMode eq 'HTML_dpng'

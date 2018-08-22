@@ -276,7 +276,7 @@ sub ForceBreak {
 
 sub Par {
   my $self = shift; my $token = shift;
-  $self->End;
+  $self->End(null, shift);
   $self->Item("par",$token,{noIndent => 1});
   $self->{atLineStart} = $self->{ignoreNL} = 1;
   $self->{indent} = $self->{actualIndent} = 0;
@@ -357,7 +357,7 @@ sub Rule {
 sub Bullet {
   my $self = shift; my $token = shift; my $bullet = shift;
   return $self->Text($token) unless $self->{atLineStart};
-  $bullet = {'*'=>'bullet', '+'=>'square', 'o'=>'circle', '-'=>'bullet'}->{substr($token,0,1)} if $bullet eq 'bullet';
+  $bullet = {'*'=>'disc', '+'=>'square', 'o'=>'circle', '-'=>'bullet'}->{substr($token,0,1)} if $bullet eq 'bullet';
   my $block = $self->{block};
   if ($block->{type} ne 'root' && !$block->{align}) {
     while ($block->{type} ne 'root' && !$block->{prev}{align}) {$block = $block->{prev}}
@@ -537,7 +537,7 @@ sub terminatePre {
   my $self = shift; my $token = shift;
   $self->{block}{terminator} = ''; # we add the ending token to the text below
   if ($token =~ m/\n\n/) {
-    $self->Par($token);
+    $self->Par($token, $self->{block});
     $self->{block} = $self->{block}{prev};
   } else {
     $self->Text($token);
@@ -1100,6 +1100,7 @@ my %bullet = (
   Alpha   => 'ol type="A"',
   roman   => 'ol type="i"',
   Roman   => 'ol type="I"',
+  disc    => 'ul type="disc"',
   circle  => 'ul type="circle"',
   square  => 'ul type="square"',
 );
@@ -1538,6 +1539,7 @@ our $preamble = <<'END_PREAMBLE';
 
 \def\pgmlIndent{\par\advance\leftskip by 2em \advance\pgmlPercent by .02em \pgmlCount=0}%
 \def\pgmlbulletItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
+\def\pgmldiscItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
 \def\pgmlcircleItem{\par\indent\llap{$\circ$ }\ignorespaces}%
 \def\pgmlsquareItem{\par\indent\llap{\vrule height 1ex width .75ex depth -.25ex\ }\ignorespaces}%
 \def\pgmlnumericItem{\par\indent\advance\pgmlCount by 1 \llap{\the\pgmlCount. }\ignorespaces}%
