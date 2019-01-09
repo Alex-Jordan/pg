@@ -2558,6 +2558,7 @@ sub iframe {
 #scalable iframe used for videos in PCC set headers
 sub scalableiframe {
         my $url = shift;
+	return $PAR."No video.".$PAR unless defined $url;
         my %options = @_;  # options for surrounding div box
         my $formatted_options = join(" ",
                          map {qq!$_ = "$options{$_}"!} (keys %options));
@@ -2565,13 +2566,322 @@ sub scalableiframe {
         MODES(
                 TeX       => "\\framebox{".protect_underbar($url)."}\n",
                 HTML      => qq!\n <div $formatted_options> \n
-                                  <iframe src="$url" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'>
+                                  <iframe src="$url" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%' allowfullscreen="">
                                       Your browser does not support iframes.</p>
                                    </iframe>\n
                                   </div>\n!,
         );
 }
 
+sub setNumber_to_video {
+  my $setNumber = shift;
+  my %setNumber_to_video = (
+    '1_1-Arithmetic_with_Negative_Numbers' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiP2EwuQWCvgq0rWoKuOhm',
+    '1_1-Arithmetic_with_Negative_Numbers_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiP2EwuQWCvgq0rWoKuOhm',
+    '1_1-Arithmetic_with_Negative_Numbers_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiP2EwuQWCvgq0rWoKuOhm',
+
+    '1_2-Fractions_and_Fraction_Arithmetic' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fyu-aEFD1qoBEXtQTBTC4N',
+    '1_2-Fractions_and_Fraction_Arithmetic_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fyu-aEFD1qoBEXtQTBTC4N',
+    '1_2-Fractions_and_Fraction_Arithmetic_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fyu-aEFD1qoBEXtQTBTC4N',
+
+    #'1_3-Absolute_Value_and_Square_Root' => 'https://www.youtube.com/embed/videoseries?list=',
+    #'1_3-Absolute_Value_and_Square_Root_Exercises' => 'https://www.youtube.com/embed/videoseries?list=',
+    #'1_3-Absolute_Value_and_Square_Root_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=',
+
+    '1_4-Order_of_Operations' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cE9eEq9ZW5Hj64c3iPwOU5',
+    '1_4-Order_of_Operations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cE9eEq9ZW5Hj64c3iPwOU5',
+    '1_4-Order_of_Operations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cE9eEq9ZW5Hj64c3iPwOU5',
+
+    '1_5-Set_Notation_and_Types_of_Numbers' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fjLJ-5Kbh8VnyxrTreDJWv',
+    '1_5-Set_Notation_and_Types_of_Numbers_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fjLJ-5Kbh8VnyxrTreDJWv',
+    '1_5-Set_Notation_and_Types_of_Numbers_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fjLJ-5Kbh8VnyxrTreDJWv',
+
+    '1_6-Comparison_Symbols_and_Notation_for_Intervals' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fkLe_JgvfS8l8VO8DuBS4W',
+    '1_6-Comparison_Symbols_and_Notation_for_Intervals_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fkLe_JgvfS8l8VO8DuBS4W',
+    '1_6-Comparison_Symbols_and_Notation_for_Intervals_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fkLe_JgvfS8l8VO8DuBS4W',
+    ############
+    '2_1-Variables_and_Evaluating_Expressions' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eJdbyTErz2vXrizIRNdNjG',
+    '2_1-Variables_and_Evaluating_Expressions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eJdbyTErz2vXrizIRNdNjG',
+    '2_1-Variables_and_Evaluating_Expressions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eJdbyTErz2vXrizIRNdNjG',
+
+    '2_2-Geometry_Formulas' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fnjgTqBu0dCPm9N5HKb6Z3',
+    '2_2-Geometry_Formulas_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fnjgTqBu0dCPm9N5HKb6Z3',
+    '2_2-Geometry_Formulas_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fnjgTqBu0dCPm9N5HKb6Z3',
+
+    '2_3-Combining_Like_Terms' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cBctr6w6PJujrhmaMydHzL',
+    '2_3-Combining_Like_Terms_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cBctr6w6PJujrhmaMydHzL',
+    '2_3-Combining_Like_Terms_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cBctr6w6PJujrhmaMydHzL',
+
+    '2_4-Equations_and_Inequalities_as_TrueFalse_Statements' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQXzV-oNX_xxXCEUqKyxUu',
+    '2_4-Equations_and_Inequalities_as_TrueFalse_Statements_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQXzV-oNX_xxXCEUqKyxUu',
+    '2_4-Equations_and_Inequalities_as_TrueFalse_Statements_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQXzV-oNX_xxXCEUqKyxUu',
+
+    '2_5-Solving_OneStep_Equations' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dr2UVk8iJ3rW9zbcEl915v',
+    '2_5-Solving_OneStep_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dr2UVk8iJ3rW9zbcEl915v',
+    '2_5-Solving_OneStep_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dr2UVk8iJ3rW9zbcEl915v',
+
+    #'2_6-Solving_OneStep_Inequalities' => 'https://www.youtube.com/embed/videoseries?list=',
+    #'2_6-Solving_OneStep_Inequalities_Exercises' => 'https://www.youtube.com/embed/videoseries?list=',
+    #'2_6-Solving_OneStep_Inequalities_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=',
+
+    '2_7-Percentages' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dRNkG2RKS6L6k1OdHZ_x16',
+    '2_7-Percentages_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dRNkG2RKS6L6k1OdHZ_x16',
+    '2_7-Percentages_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dRNkG2RKS6L6k1OdHZ_x16',
+
+    '2_8-Modeling_with_Equations_and_Inequalities' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dBtfjxbez8SKncrgTmAsuQ',
+    '2_8-Modeling_with_Equations_and_Inequalities_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dBtfjxbez8SKncrgTmAsuQ',
+    '2_8-Modeling_with_Equations_and_Inequalities_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dBtfjxbez8SKncrgTmAsuQ',
+
+    '2_9-Introduction_to_Exponent_Rules' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dj61wWyTluBykvvQE1pWnB',
+    '2_9-Introduction_to_Exponent_Rules_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dj61wWyTluBykvvQE1pWnB',
+    '2_9-Introduction_to_Exponent_Rules_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dj61wWyTluBykvvQE1pWnB',
+
+    '2_10-Simplifying_Expressions' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eWHhy-jpMtWZhqAJalUdFX',
+    '2_10-Simplifying_Expressions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eWHhy-jpMtWZhqAJalUdFX',
+    '2_10-Simplifying_Expressions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eWHhy-jpMtWZhqAJalUdFX',
+    ############
+    '3_1-Solving_Multistep_Linear_Equations' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eQgK24_144wEjOnP3worfP',
+    '3_1-Solving_Multistep_Linear_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eQgK24_144wEjOnP3worfP',
+    '3_1-Solving_Multistep_Linear_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eQgK24_144wEjOnP3worfP',
+
+    '3_2-Solving_Multistep_Linear_Inequalities' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cnYiqJTR-m9qZwDh9R6vZX',
+    '3_2-Solving_Multistep_Linear_Inequalities_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cnYiqJTR-m9qZwDh9R6vZX',
+    '3_2-Solving_Multistep_Linear_Inequalities_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cnYiqJTR-m9qZwDh9R6vZX',
+
+    '3_3-Linear_Equations_and_Inequalities_with_Fractions' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiNkSFbhzWmDUwr3hq10_F',
+    '3_3-Linear_Equations_and_Inequalities_with_Fractions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiNkSFbhzWmDUwr3hq10_F',
+    '3_3-Linear_Equations_and_Inequalities_with_Fractions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eiNkSFbhzWmDUwr3hq10_F',
+
+    '3_4-Isolating_a_Linear_Variable' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dHg2rXIoZ69w7rxb3gAAaB',
+    '3_4-Isolating_a_Linear_Variable_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dHg2rXIoZ69w7rxb3gAAaB',
+    '3_4-Isolating_a_Linear_Variable_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dHg2rXIoZ69w7rxb3gAAaB',
+
+    '3_5-Ratios_and_Proportions' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eoZ-KQPMjIvmir-E924Q99',
+    '3_5-Ratios_and_Proportions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eoZ-KQPMjIvmir-E924Q99',
+    '3_5-Ratios_and_Proportions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eoZ-KQPMjIvmir-E924Q99',
+
+    '3_6-Special_Solution_Sets' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dUbqB_A6GYjXGL2X5SHrRB',
+    '3_6-Special_Solution_Sets_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dUbqB_A6GYjXGL2X5SHrRB',
+    '3_6-Special_Solution_Sets_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dUbqB_A6GYjXGL2X5SHrRB',
+    ############
+    '4_1-Cartesian_Coordinates' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fY732-8tex6rx7xNEar3TO',
+    '4_1-Cartesian_Coordinates_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fY732-8tex6rx7xNEar3TO',
+    '4_1-Cartesian_Coordinates_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fY732-8tex6rx7xNEar3TO',
+
+    '4_2-Graphing_Equations' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e4BPQL-CTfUR7abqP1MlHx',
+    '4_2-Graphing_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e4BPQL-CTfUR7abqP1MlHx',
+    '4_2-Graphing_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e4BPQL-CTfUR7abqP1MlHx',
+
+    '4_3-Exploring_TwoVariable_Data_and_Rate_of_Change' => 'https://www.youtube.com/embed/FoenTDjuTjY',
+    '4_3-Exploring_TwoVariable_Data_and_Rate_of_Change_Exercises' => 'https://www.youtube.com/embed/FoenTDjuTjY',
+    '4_3-Exploring_TwoVariable_Data_and_Rate_of_Change_Selected_Exercises' => 'https://www.youtube.com/embed/FoenTDjuTjY',
+
+    '4_4-Slope' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-egOM3nFkifyG8kzF1PA46D',
+    '4_4-Slope_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-egOM3nFkifyG8kzF1PA46D',
+    '4_4-Slope_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-egOM3nFkifyG8kzF1PA46D',
+
+    '4_5-SlopeIntercept_Form' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e5tfdgFM8gL44XS1TxKQcf',
+    '4_5-SlopeIntercept_Form_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e5tfdgFM8gL44XS1TxKQcf',
+    '4_5-SlopeIntercept_Form_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e5tfdgFM8gL44XS1TxKQcf',
+
+    '4_6-PointSlope_Form' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e3HVQTn7ysJcPB_-5mUO5O',
+    '4_6-PointSlope_Form_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e3HVQTn7ysJcPB_-5mUO5O',
+    '4_6-PointSlope_Form_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e3HVQTn7ysJcPB_-5mUO5O',
+
+    '4_7-Standard_Form' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f8cnTX8Fv82mnDxfGtuNF6',
+    '4_7-Standard_Form_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f8cnTX8Fv82mnDxfGtuNF6',
+    '4_7-Standard_Form_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f8cnTX8Fv82mnDxfGtuNF6',
+
+    '4_8-Horizontal_Vertical_Parallel_and_Perpendicular_Lines' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dAFOej6LZ7akWnP1saiC_w',
+    '4_8-Horizontal_Vertical_Parallel_and_Perpendicular_Lines_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dAFOej6LZ7akWnP1saiC_w',
+    '4_8-Horizontal_Vertical_Parallel_and_Perpendicular_Lines_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dAFOej6LZ7akWnP1saiC_w',
+
+    '4_10-Linear_Inequalities_in_Two_Variables' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQUZT8clRiiwu0R5usBhru',
+    '4_10-Linear_Inequalities_in_Two_Variables_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQUZT8clRiiwu0R5usBhru',
+    '4_10-Linear_Inequalities_in_Two_Variables_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dQUZT8clRiiwu0R5usBhru',
+    ############
+    '5_1-Solving_Systems_of_Linear_Equations_by_Graphing_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cVXXDS3q3MLeYAC9rz4TGX',
+    '5_1-Solving_Systems_of_Linear_Equations_by_Graphing_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cVXXDS3q3MLeYAC9rz4TGX',
+    '5_1-Solving_Systems_of_Linear_Equations_by_Graphing_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cVXXDS3q3MLeYAC9rz4TGX',
+
+    '5_2-Substitution_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f-72s-L0ZpS4K8B86jMm1i',
+    '5_2-Substitution_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f-72s-L0ZpS4K8B86jMm1i',
+    '5_2-Substitution_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f-72s-L0ZpS4K8B86jMm1i',
+
+    '5_3-Elimination_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-db09h4ugJEcflfcwm94aNB',
+    '5_3-Elimination_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-db09h4ugJEcflfcwm94aNB',
+    '5_3-Elimination_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-db09h4ugJEcflfcwm94aNB',
+    ############
+    '6_1-Exponent_Rules_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eUYq3sBms_5CaAqWvayULV',
+    '6_1-Exponent_Rules_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eUYq3sBms_5CaAqWvayULV',
+    '6_1-Exponent_Rules_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eUYq3sBms_5CaAqWvayULV',
+
+    '6_2-Scientific_Notation_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cwvo4Hrz59MM7q93ZujFA7',
+    '6_2-Scientific_Notation_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cwvo4Hrz59MM7q93ZujFA7',
+    '6_2-Scientific_Notation_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cwvo4Hrz59MM7q93ZujFA7',
+
+    '6_3-Adding_and_Subtracting_Polynomials_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ef9FnOLhpBG_Z0sQd6-7s-',
+    '6_3-Adding_and_Subtracting_Polynomials_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ef9FnOLhpBG_Z0sQd6-7s-',
+    '6_3-Adding_and_Subtracting_Polynomials_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ef9FnOLhpBG_Z0sQd6-7s-',
+
+    '6_4-Multiplying_Polynomials_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f68uz_9tWNiLf9GRkurveh',
+    '6_4-Multiplying_Polynomials_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f68uz_9tWNiLf9GRkurveh',
+    '6_4-Multiplying_Polynomials_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-f68uz_9tWNiLf9GRkurveh',
+
+    '6_5-Special_Cases_of_Multiplying_Polynomials_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cl21nlu-cPnDREmZnzNvOg',
+    '6_5-Special_Cases_of_Multiplying_Polynomials_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cl21nlu-cPnDREmZnzNvOg',
+    '6_5-Special_Cases_of_Multiplying_Polynomials_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-cl21nlu-cPnDREmZnzNvOg',
+
+    '6_6-Dividing_by_a_Monomial_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dvZk2B452d9mN6V6DIHx_s',
+    '6_6-Dividing_by_a_Monomial_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dvZk2B452d9mN6V6DIHx_s',
+    '6_6-Dividing_by_a_Monomial_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dvZk2B452d9mN6V6DIHx_s',
+    ############
+    '7_1-Factoring_out_the_Common_Factor_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dPuberyCYlTysUnhyan6TA',
+    '7_1-Factoring_out_the_Common_Factor_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dPuberyCYlTysUnhyan6TA',
+    '7_1-Factoring_out_the_Common_Factor_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dPuberyCYlTysUnhyan6TA',
+
+    '7_2-Factoring_by_Grouping_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fl9lK9reavn63xu4Uu1hHT',
+    '7_2-Factoring_by_Grouping_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fl9lK9reavn63xu4Uu1hHT',
+    '7_2-Factoring_by_Grouping_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fl9lK9reavn63xu4Uu1hHT',
+
+    '7_3-Factoring_Trinomials_with_Leading_Coefficient_One_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fLNMTmn2iG3E5n-aYciDx0',
+    '7_3-Factoring_Trinomials_with_Leading_Coefficient_One_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fLNMTmn2iG3E5n-aYciDx0',
+    '7_3-Factoring_Trinomials_with_Leading_Coefficient_One_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fLNMTmn2iG3E5n-aYciDx0',
+
+    '7_4-Factoring_Trinomials_with_a_Nontrivial_Leading_Coefficient_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fGEM55QCpmQXunxIbtfL69',
+    '7_4-Factoring_Trinomials_with_a_Nontrivial_Leading_Coefficient_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fGEM55QCpmQXunxIbtfL69',
+    '7_4-Factoring_Trinomials_with_a_Nontrivial_Leading_Coefficient_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fGEM55QCpmQXunxIbtfL69',
+
+    '7_5-Factoring_Special_Polynomials_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eKorFL2thBlq6MadwRc0F2',
+    '7_5-Factoring_Special_Polynomials_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eKorFL2thBlq6MadwRc0F2',
+    '7_5-Factoring_Special_Polynomials_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eKorFL2thBlq6MadwRc0F2',
+
+    '7_6-Factoring_Strategies_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dmLIf3S5QjgZTOq6000psK',
+    '7_6-Factoring_Strategies_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dmLIf3S5QjgZTOq6000psK',
+    '7_6-Factoring_Strategies_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-dmLIf3S5QjgZTOq6000psK',
+    ############
+    '8_1-Solving_Quadratic_Equations_by_Factoring_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVVT6gBsJq_o7NFyUGC8BY',
+    '8_1-Solving_Quadratic_Equations_by_Factoring_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVVT6gBsJq_o7NFyUGC8BY',
+    '8_1-Solving_Quadratic_Equations_by_Factoring_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVVT6gBsJq_o7NFyUGC8BY',
+
+    '8_2-Square_Root_Properties_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ex0-JuRQ4P920Qz1x5LwUO',
+    '8_2-Square_Root_Properties_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ex0-JuRQ4P920Qz1x5LwUO',
+    '8_2-Square_Root_Properties_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ex0-JuRQ4P920Qz1x5LwUO',
+
+    '8_3-Solving_Quadratic_Equations_by_Using_a_Square_Root_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fBul1o0Y4RxNEI5C1mE2lz',
+    '8_3-Solving_Quadratic_Equations_by_Using_a_Square_Root_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fBul1o0Y4RxNEI5C1mE2lz',
+    '8_3-Solving_Quadratic_Equations_by_Using_a_Square_Root_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-fBul1o0Y4RxNEI5C1mE2lz',
+
+    '8_4-The_Quadratic_Formula_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e22-Ev-CeAYps78s4qREon',
+    '8_4-The_Quadratic_Formula_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e22-Ev-CeAYps78s4qREon',
+    '8_4-The_Quadratic_Formula_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-e22-Ev-CeAYps78s4qREon',
+
+    '8_5-Complex_Solutions_to_Quadratic_Equations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-c189pInY_ddsbonNff6axR',
+    '8_5-Complex_Solutions_to_Quadratic_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-c189pInY_ddsbonNff6axR',
+    '8_5-Complex_Solutions_to_Quadratic_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-c189pInY_ddsbonNff6axR',
+
+    #'8_6-Strategies_for_Solving_Quadratic_Equations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVIrCxdYjliZQqpjPvciLS',
+    #'8_6-Strategies_for_Solving_Quadratic_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVIrCxdYjliZQqpjPvciLS',
+    #'8_6-Strategies_for_Solving_Quadratic_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eVIrCxdYjliZQqpjPvciLS',
+    ############
+    '9_1-Introduction_to_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ew2emPlQnzedzJQHwsMOFV',
+    '9_1-Introduction_to_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ew2emPlQnzedzJQHwsMOFV',
+    '9_1-Introduction_to_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-ew2emPlQnzedzJQHwsMOFV',
+
+    '9_2-Properties_of_Quadratic_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eECn1ZvhdPfvjEfmws278m',
+    '9_2-Properties_of_Quadratic_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eECn1ZvhdPfvjEfmws278m',
+    '9_2-Properties_of_Quadratic_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eECn1ZvhdPfvjEfmws278m',
+
+    '9_3-Graphing_Quadratic_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eMuMnKbNnpaRxES40hW87w',
+    '9_3-Graphing_Quadratic_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eMuMnKbNnpaRxES40hW87w',
+    '9_3-Graphing_Quadratic_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PLmuZCPhWPt-eMuMnKbNnpaRxES40hW87w',
+    ############
+    '10_1-Function_Basics_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbg2ONVwhgUwzSOvn-flxxM',
+    '10_1-Function_Basics_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbg2ONVwhgUwzSOvn-flxxM',
+    '10_1-Function_Basics_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbg2ONVwhgUwzSOvn-flxxM',
+
+    '10_2-Domain_and_Range_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZL32FLoEt4KHfZoNFhHwql',
+    '10_2-Domain_and_Range_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZL32FLoEt4KHfZoNFhHwql',
+    '10_2-Domain_and_Range_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZL32FLoEt4KHfZoNFhHwql',
+
+    '10_3-Using_Technology_to_Explore_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbHBOL9kGQIeEhHOdq4Xho-',
+    '10_3-Using_Technology_to_Explore_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbHBOL9kGQIeEhHOdq4Xho-',
+    '10_3-Using_Technology_to_Explore_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbHBOL9kGQIeEhHOdq4Xho-',
+
+    '10_4-Simplifying_Expressions_with_Function_Notation_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZEdd4ZZCSoSmvUWy3rmc3f',
+    '10_4-Simplifying_Expressions_with_Function_Notation_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZEdd4ZZCSoSmvUWy3rmc3f',
+    '10_4-Simplifying_Expressions_with_Function_Notation_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZEdd4ZZCSoSmvUWy3rmc3f',
+
+    '10_5-Technical_Definition_of_a_Function_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqavlviYhgi6WCnEZqjj_t_I',
+    '10_5-Technical_Definition_of_a_Function_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqavlviYhgi6WCnEZqjj_t_I',
+    '10_5-Technical_Definition_of_a_Function_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqavlviYhgi6WCnEZqjj_t_I',
+    ############
+    '11_1-Introduction_to_Absolute_Value_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY6R0_4zoXCO07Yq0c0SRkH',
+    '11_1-Introduction_to_Absolute_Value_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY6R0_4zoXCO07Yq0c0SRkH',
+    '11_1-Introduction_to_Absolute_Value_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY6R0_4zoXCO07Yq0c0SRkH',
+
+    '11_2-Compound_Inequalities_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbmvkqHOj6b9nynKxgvcIQF',
+    '11_2-Compound_Inequalities_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbmvkqHOj6b9nynKxgvcIQF',
+    '11_2-Compound_Inequalities_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbmvkqHOj6b9nynKxgvcIQF',
+
+    '11_3-Absolute_Value_Equations_and_Inequalities_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZFDElVz4I9UQf9TtDoDdm4',
+    '11_3-Absolute_Value_Equations_and_Inequalities_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZFDElVz4I9UQf9TtDoDdm4',
+    '11_3-Absolute_Value_Equations_and_Inequalities_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZFDElVz4I9UQf9TtDoDdm4',
+    ############
+    '12_1-Graphs-and_Vertex_Form_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZKPPNQQ6Z-WPjOK6HyvYx8',
+    '12_1-Graphs-and_Vertex_Form_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZKPPNQQ6Z-WPjOK6HyvYx8',
+    '12_1-Graphs-and_Vertex_Form_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZKPPNQQ6Z-WPjOK6HyvYx8',
+
+    '12_2-Completing_the_Square_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbrhb7lhsmId3_DcMAkM7eX',
+    '12_2-Completing_the_Square_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbrhb7lhsmId3_DcMAkM7eX',
+    '12_2-Completing_the_Square_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbrhb7lhsmId3_DcMAkM7eX',
+
+    '12_3-More_on_Complex_Solutions_to_Quadratic_Equations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqalGHspbEL95UxzLO7f6-P8',
+    '12_3-More_on_Complex_Solutions_to_Quadratic_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqalGHspbEL95UxzLO7f6-P8',
+    '12_3-More_on_Complex_Solutions_to_Quadratic_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqalGHspbEL95UxzLO7f6-P8',
+
+    '12_4-Complex_Number_Operations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZ9Cn6N4S9YTZuz1gfsSxdM',
+    '12_4-Complex_Number_Operations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZ9Cn6N4S9YTZuz1gfsSxdM',
+    '12_4-Complex_Number_Operations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZ9Cn6N4S9YTZuz1gfsSxdM',
+    ############
+    '13_1-Introduction_to_Rational_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbD97B34ahIC3GZuCbOsuv0',
+    '13_1-Introduction_to_Rational_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbD97B34ahIC3GZuCbOsuv0',
+    '13_1-Introduction_to_Rational_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqbD97B34ahIC3GZuCbOsuv0',
+
+    '13_2-Multiplication_and_Division_of_Rational_Expressions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY1UWaEwopWox0VTCUpMu-_',
+    '13_2-Multiplication_and_Division_of_Rational_Expressions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY1UWaEwopWox0VTCUpMu-_',
+    '13_2-Multiplication_and_Division_of_Rational_Expressions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqY1UWaEwopWox0VTCUpMu-_',
+
+    '13_3-Addition_and_Subtraction_of_Rational_Expressions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZzni6YF-PmBJ4coE0q6fsL',
+    '13_3-Addition_and_Subtraction_of_Rational_Expressions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZzni6YF-PmBJ4coE0q6fsL',
+    '13_3-Addition_and_Subtraction_of_Rational_Expressions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqZzni6YF-PmBJ4coE0q6fsL',
+
+    '13_4-Complex_Fractions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqaDfcaElR-6aXCgl1UX0eFD',
+    '13_4-Complex_Fractions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqaDfcaElR-6aXCgl1UX0eFD',
+    '13_4-Complex_Fractions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqaDfcaElR-6aXCgl1UX0eFD',
+
+    '13_5-Solving_Rational_Equations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqa2z-INm-8ydWX1AaVX24dW',
+    '13_5-Solving_Rational_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqa2z-INm-8ydWX1AaVX24dW',
+    '13_5-Solving_Rational_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqa2z-INm-8ydWX1AaVX24dW',
+    ############
+    '14_1-Introduction_to_Radical_Functions_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYR-6ejx9oQp49qnTr7AYcE',
+    '14_1-Introduction_to_Radical_Functions_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYR-6ejx9oQp49qnTr7AYcE',
+    '14_1-Introduction_to_Radical_Functions_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYR-6ejx9oQp49qnTr7AYcE',
+
+    '14_2-Radical_Expressions_and_Rational_Expoenents_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqagfajEfmdo0bhZ5TX9V2Vy',
+    '14_2-Radical_Expressions_and_Rational_Expoenents_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqagfajEfmdo0bhZ5TX9V2Vy',
+    '14_2-Radical_Expressions_and_Rational_Expoenents_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqagfajEfmdo0bhZ5TX9V2Vy',
+
+    '14_3-More_onRationalizing_the_Denominator_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqat4wDKU_AaYisYUKAMrRMn',
+    '14_3-More_onRationalizing_the_Denominator_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqat4wDKU_AaYisYUKAMrRMn',
+    '14_3-More_onRationalizing_the_Denominator_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqat4wDKU_AaYisYUKAMrRMn',
+
+    '14_4-Solving_Radical_Equations_Checkpoints' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYpLWYTM1EqIazsPELNYi-x',
+    '14_4-Solving_Radical_Equations_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYpLWYTM1EqIazsPELNYi-x',
+    '14_4-Solving_Radical_Equations_Selected_Exercises' => 'https://www.youtube.com/embed/videoseries?list=PL2qOxw8-rmqYpLWYTM1EqIazsPELNYi-x',
+  );
+  return $setNumber_to_video{$setNumber};
+}
 
 
 sub helpLink {
