@@ -192,11 +192,7 @@ sub LayoutTable {
 # encase, rowheaders should be passed to cells
 # various css should be self-explanatory
 sub TableEnvironment {
-	my $dataArray = shift;
-	my $optsArray = shift;
-	my $colCount = shift;
-	my $tableOpts = shift;
-	my $alignment = shift;
+	my ($dataArray, $optsArray, $colCount, $tableOpts, $alignment) = @_;
 	my @alignment = @$alignment;
 
 	# determine if somewhere in the overall alignment, there are X columns
@@ -298,9 +294,7 @@ sub TableEnvironment {
 
 
 sub Cols {
-	my $alignment = shift;
-	my $tableOpts = shift;
-	my $optsArray = shift;
+	my ($alignment, $tableOpts, $optsArray) = @_;
 	my $columnscss = $tableOpts->{columnscss};
 	my @html;
 	my @ptx;
@@ -354,11 +348,7 @@ sub Cols {
 }
 
 sub Rows {
-	my $dataArray = shift;
-	my $optsArray = shift;
-	my $colCount = shift;
-	my $tableOpts = shift;
-	my $alignment = shift;
+	my ($dataArray, $optsArray, $colCount, $tableOpts, $alignment) = @_;
 	my @data = @$dataArray;
 	
 	my @tex;
@@ -468,10 +458,7 @@ sub Rows {
 }
 
 sub Row {
-	my $rowData = shift;
-	my $rowOpts = shift;
-	my $tableOpts = shift;
-	my $alignment = shift;
+	my ($rowData, $rowOpts, $tableOpts, $alignment) = @_;
 	my @alignment = @$alignment;
 	my $leftend = shift(@alignment);
 	my @data = @$rowData;
@@ -647,6 +634,9 @@ sub DataArray {
 
 # Takes the original nested array and returns a simplified version with only the options as a hash 
 sub OptionsArray {
+	my $originalArrayRef = shift;
+	my @originalArray = @$originalArrayRef;
+	my $lastRowIndex = $#originalArray;
 	my %supportedOptions = (
 		halign => '',
 		header => '',
@@ -663,9 +653,6 @@ sub OptionsArray {
 		bottom => 0,
 		valign => '',
 	);
-	my $originalArrayRef = shift;
-	my @originalArray = @$originalArrayRef;
-	my $lastRowIndex = $#originalArray;
 	my @outArray;
 	for my $i (0..$lastRowIndex) {
 		my @outRow;
@@ -849,10 +836,8 @@ sub ParseAlignment {
 }
 
 sub latexEnvironment {
-	my $inside = shift;
-	my $environment = shift;
-	my $options = shift;
-	my $separator = shift // "\n";
+	my ($inside, $environment, $options, $separator) = @_;
+	$separator = "\n" unless ($separator);
 	my $return = "\\begin{$environment}";
 	for my $x (@$options) {
 		$return .= "{$x}" if ($x ne '');
@@ -863,8 +848,7 @@ sub latexEnvironment {
 }
 
 sub latexCommand {
-	my $command = shift;
-	my $arguments = shift;
+	my ($command, $arguments) = @_;
 	my $return = "\\$command";
 	for my $x (@$arguments) {
 		$return .= "{$x}" if ($x ne '');
@@ -874,10 +858,8 @@ sub latexCommand {
 }
 
 sub wrap {
-	my $center = shift;
-	my $left = shift;
-	my $right = shift;
-	my $separator = shift // "\n";
+	my ($center, $left, $right, $separator) = @_;
+	$separator = "\n" unless ($separator);
 	return $center unless ($left || $right);
 	return "$left$separator$center" unless $right;
 	return "$center$separator$right" unless $left;
@@ -885,31 +867,26 @@ sub wrap {
 }
 
 sub prefix {
-	my $center = shift;
-	my $left = shift;
-	my $separator = shift // "\n";
+	my ($center, $left, $separator) = @_;
+	$separator = "\n" unless ($separator);
 	return join("$separator",($left, $center)) if ($left ne '');
 	return $center;
 }
 
 sub suffix {
-	my $center = shift;
-	my $right = shift;
-	my $separator = shift // "\n";
+	my ($center, $right, $separator) = @_;
+	$separator = "\n" unless ($separator);
 	return join("$separator",($center, $right)) if ($right ne '');
 	return $center;
 }
 
 sub css {
-	my $property = shift;
-	my $value = shift;
+	my ($property, $value) = @_;
 	return ($value) ? "$property:$value;" : '';
 }
 
 sub tag {
-	my $inner = shift;
-	my $name = shift;
-	my $attributes = shift;
+	my ($inner, $name, $attributes) = @_;
 	my $return = "<$name";
 	for my $x (lex_sort(keys %$attributes)) {
 		$return .= qq( $x="$attributes->{$x}") if ($attributes->{$x} ne '');
