@@ -221,6 +221,7 @@ sub TableEnvironment {
 	my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
 	$tex = latexEnvironment($tex, $tabulartype, [ $tabularwidth, $tableOpts->{texalignment} ], ' ');
 	$tex = prefix($tex, '\centering') if $tableOpts->{center};
+	$tex = prefix($tex, '\renewcommand{\arraystretch}{2}') if $tableOpts->{LaYoUt};
 	$tex =
 		suffix($tex,
 			"\\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\\captionof*{table}{$tableOpts->{caption}}")
