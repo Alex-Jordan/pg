@@ -2371,7 +2371,7 @@ sub PTX_cleanup {
 	# Wrap <p> tags where necessary, and other cleanup
 	# Nothing else should be creating p tags, so assume all p tags created here
 	# The only supported top-level elements within a statement, hint, or solution in a problem
-	# are p, blockquote, pre, tabular, image, video
+	# are p, blockquote, pre, tabular, image, video, sbsgroup
 	if ($displayMode eq 'PTX') {
 		#encase entire string in <p>
 		#except not for certain "sub" structures that are also passed through EV3
@@ -2383,11 +2383,11 @@ sub PTX_cleanup {
 		$string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
 		$string =~ s/(<\/li>)/<\/p>\n$1/g;
 
-		#close p right before any blockquote, pre, image, video, or tabular
+		#close p right before any blockquote, pre, image, video, tabular, sbsgroup
 		#and open p immediately following. Later any potential side effects are cleaned up.
-		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
-		$string =~ s/(<\/(blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
-		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
+		$string =~ s/(<(blockquote|pre|image|video|tabular|sbsgroup)[^>]*(?<!\/)>)/<\/p>\n$1/g;
+		$string =~ s/(<\/(blockquote|pre|image|video|tabular|sbsgroup)>)/$1\n<p>/g;
+		$string =~ s/(<(blockquote|pre|image|video|tabular|sbsgroup)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
 
 		#within a <cell>, we may have an issue if there was an image that had '<\p>' and '<p>' wrapped around
 		#it from the above block. If the '</p>' has a preceding '<p>' within the cell, no problem. Otherwise,

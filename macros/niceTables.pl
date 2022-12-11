@@ -220,7 +220,7 @@ sub TableEnvironment {
 	my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
 	my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
 	$tex = latexEnvironment($tex, $tabulartype, [ $tabularwidth, $tableOpts->{texalignment} ], ' ');
-	$tex = prefix($tex, '\centering') if $tableOpts->{center};
+	$tex = prefix($tex, '\centering')                      if $tableOpts->{center};
 	$tex = prefix($tex, '\renewcommand{\arraystretch}{2}') if $tableOpts->{LaYoUt};
 	$tex =
 		suffix($tex,
@@ -254,8 +254,7 @@ sub TableEnvironment {
 	}
 
 	# PTX
-	my $ptx = $cols;
-	$ptx = prefix($rows, $cols);
+	my $ptx     = $rows;
 	my $ptxleft = getPTXthickness($alignment[0]->{left});
 	my $ptxtop  = ($tableOpts->{horizontalrules}) ? 'major' : '';
 	$ptxtop = getPTXthickness($top) if $top;
@@ -273,18 +272,30 @@ sub TableEnvironment {
 		$ptxmargins = '0% 0%';
 	}
 	my $ptxbottom = ($tableOpts->{horizontalrules}) ? 'minor' : '';
-	$ptx = tag(
-		$ptx,
-		'tabular',
-		{
-			valign  => $tableOpts->{valign},
-			width   => $ptxwidth,
-			margins => $ptxmargins,
-			left    => $ptxleft,
-			top     => $ptxtop,
-			bottom  => $ptxbottom
-		}
-	);
+	if ($tableOpts->{LaYoUt}) {
+		$ptx = tag(
+			$ptx,
+			'sbsgroup',
+			{
+				width   => $ptxwidth,
+				margins => $ptxmargins,
+			}
+		);
+	} elsif (!$tableOpts->{LaYoUt}) {
+		$ptx = prefix($rows, $cols);
+		$ptx = tag(
+			$ptx,
+			'tabular',
+			{
+				valign  => $tableOpts->{valign},
+				width   => $ptxwidth,
+				margins => $ptxmargins,
+				left    => $ptxleft,
+				top     => $ptxtop,
+				bottom  => $ptxbottom
+			}
+		);
+	}
 
 	# We fake a caption as a following tabular
 	my $ptxcaption = '';
@@ -478,15 +489,61 @@ sub Rows {
 			$ptxleft = 'medium' if ($1 == '0.07em');
 			$ptxleft = 'major'  if ($1 == '0.11em');
 		}
-		$ptx = tag(
-			$ptx, 'row',
-			{
-				left   => $ptxleft,
-				valign => $valign,
-				header => $headerrow,
-				bottom => $ptxbottom
+		if ($tableOpts->{LaYoUt}) {
+			my $ptxwidthsum = 0;
+			my $ptxautocols = $colCount;
+			for my $j (1 .. $colCount) {
+				if ($rowOpts->[ $j - 1 ]->{width}) {
+					$ptxwidthsum += substr getWidthPercent($optsArray->[ $j - 1 ]->{width}), 0, -1;
+					$ptxautocols -= 1;
+				} elsif ($alignment->[$j]->{width}) {
+					$ptxwidthsum += substr getWidthPercent($alignment->[$j]->{width}), 0, -1;
+					$ptxautocols -= 1;
+				}
 			}
-		);
+			# determine if somewhere in the overall alignment, there are X columns
+			my $hasX = 0;
+			for my $align (@$alignment) {
+				if ($align->{halign} eq 'X') {
+					$hasX = 1;
+					last;
+				}
+			}
+			my $leftoverspace  = (($hasX) ? $tableOpts->{Xratio} * 100 : 100) - $ptxwidthsum;
+			my $divvyuptherest = 0;
+			$divvyuptherest = int($leftoverspace / $ptxautocols * 10000) / 10000 unless ($ptxautocols == 0);
+			my @ptxwidths;
+			for my $j (1 .. $colCount) {
+				if ($rowOpts->[ $j - 1 ]->{width}) {
+					push(@ptxwidths, getWidthPercent($rowOpts->[ $j - 1 ]->{width}));
+				} elsif ($alignment->[$j]->{width}) {
+					push(@ptxwidths, getWidthPercent($alignment->[$j]->{width}));
+				} else {
+					push(@ptxwidths, $divvyuptherest . '%');
+				}
+			}
+
+			my $ptxwidths = join(" ", @ptxwidths);
+			$ptx = tag(
+				$ptx,
+				'sidebyside',
+				{
+					valign  => ($valign) ? $valign : $tableOpts->{valign},
+					margins => '0% 0%',
+					widths  => $ptxwidths,
+				}
+			);
+		} else {
+			$ptx = tag(
+				$ptx, 'row',
+				{
+					left   => $ptxleft,
+					valign => $valign,
+					header => $headerrow,
+					bottom => $ptxbottom
+				}
+			);
+		}
 		push(@ptx, $ptx);
 	}
 
@@ -669,11 +726,13 @@ sub Row {
 		$ptx = wrap($ptx, @{ $tableOpts->{encase} })
 			unless $cellOpts->{noencase};
 
-		# space following p is intentional hack to prevent p from scrubbing by PTX cleanup
-		$ptx = wrap($ptx, '<p >', '</p >')
-			if ($alignment[$i]->{width}
+		$ptx = tag($ptx, 'p')
+			if ((
+				$alignment[$i]->{width}
 				or $alignment[$i]->{halign} eq 'X'
-				or $cellOpts->{halign} =~ /^p/);
+				or $cellOpts->{halign} =~ /^p/
+			))
+			&& !$tableOpts->{LaYoUt};
 		my $ptxhalign = '';
 		$ptxhalign = 'center' if ($cellOpts->{halign} =~ /c/);
 		$ptxhalign = 'right'  if ($cellOpts->{halign} =~ /r/);
@@ -688,14 +747,20 @@ sub Row {
 			$ptxright = 'medium' if ($1 == '0.07em');
 			$ptxright = 'major'  if ($1 == '0.11em');
 		}
-		$ptx = tag(
-			$ptx, 'cell',
-			{
-				halign  => $ptxhalign,
-				colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : '',
-				right   => $ptxright
-			}
-		);
+		if ($tableOpts->{LaYoUt}) {
+			$ptx = tag($ptx, 'p') unless ($cell =~ /<image[ >]/);
+			$ptx = tag($ptx, 'stack',);
+
+		} else {
+			$ptx = tag(
+				$ptx, 'cell',
+				{
+					halign  => $ptxhalign,
+					colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : '',
+					right   => $ptxright
+				}
+			);
+		}
 		push(@ptx, $ptx);
 	}
 
@@ -887,6 +952,7 @@ sub TableOptions {
 
 sub ParseAlignment {
 	my $alignment = shift;
+	$alignment =~ s/\R//g;
 
 	# first we parse things like *{20}{...} to expand them
 	my $pattern = qr/\*\{(\d+)\}\{(.*?)\}/;
