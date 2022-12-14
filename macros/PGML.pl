@@ -1775,7 +1775,7 @@ sub Format {
 	if ($main::displayMode eq 'TeX') {
 		$format = "\n{\\pgmlSetup\n" . PGML::Format::tex->new($parser)->format . "\\par}%\n";
 	} elsif ($main::displayMode eq 'PTX') {
-		$format = PGML::Format::ptx->new($parser)->format . "\n";
+		$format = PGML::Format::ptx->new($parser)->format;
 		$format = main::PTX_cleanup($format);
 	} else {
 		$format = '<div class="PGML">' . "\n" . PGML::Format::html->new($parser)->format . '</div>' . "\n";
