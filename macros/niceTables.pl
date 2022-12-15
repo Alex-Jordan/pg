@@ -39,10 +39,10 @@ As much as possible, options can be declared that apply to all output formats.
 Some options are abstracted out to perl. For example center => 0 or 1.
 Some options rely on LaTeX tabular syntax for column alignment, which is parsed
 for use in other output formats. Some settings only apply to HTML styling, and
-seme settings only apply to hardcopy output. Not all fetures are supported in
+seme settings only apply to hardcopy output. Not all features are supported in
 every output format. For example PreTeXt cannot use ccolor information.
 
-All features below apply to DataTable. With LayoutTable, the following fetures
+All features below apply to DataTable. With LayoutTable, the following features
 do not apply or are not implemented:
 	caption
 	rowheaders
@@ -51,7 +51,7 @@ do not apply or are not implemented:
 	headerrow
 Please do use LayoutTable whenever you are really using a table purely for
 layout purposes, for the sake of accessibility.
-	
+
 Options for the WHOLE TABLE
 
 	Applies to on-screen *and* hard copy:
@@ -170,6 +170,8 @@ Options for ROWS
 
 =cut
 
+loadMacros('PGstandard.pl');
+
 sub _niceTables_init { };    # don't reload this file
 
 sub DataTable {
@@ -186,10 +188,10 @@ sub LayoutTable {
 	return DataTable(@_, LaYoUt => 1);
 }
 
-# Make the outer table enovornment
+# Make the outer table environment
 # Handle center, caption, horizontalrules, texalignment, Xratio
 # overall halign OK for tex, ptx but for html must be passed to cells
-# vertical rules from alingment OK
+# vertical rules from alignment OK
 # encase, rowheaders should be passed to cells
 # various css should be self-explanatory
 sub TableEnvironment {
@@ -199,7 +201,7 @@ sub TableEnvironment {
 	# determine if somewhere in the overall alignment, there are X columns
 	my $hasX = 0;
 	for my $align (@alignment) {
-		if ($align->{halign} eq 'X') {
+		if ($align->{halign} && $align->{halign} eq 'X') {
 			$hasX = 1;
 			last;
 		}
@@ -349,7 +351,7 @@ sub Cols {
 		$htmlright .= css('border-right', getRuleCSS($align->{right}));
 
 		$htmlcolcss = $columnscss->[$i];
-		if ($align->{tex} =~ /\\columncolor(\[HTML\])?{(.*?)[}!]/) {
+		if (defined($align->{text}) && $align->{tex} =~ /\\columncolor(\[HTML\])?{(.*?)[}!]/) {
 			$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
 		}
 
@@ -483,7 +485,7 @@ sub Rows {
 		$ptxleft = 'medium' if ($rowOpts->[0]->{halign} =~ /^\s*\|\s*\|/);
 		$ptxleft = 'major'  if ($rowOpts->[0]->{halign} =~ /^\s*\|\s*\|\s*\|/);
 
-		if ($rowOpts->[0]->{halign} =~ /^(?:\s|\|)*!{\s*\\vrule\s+width\s+([^}]*?)\s*}/) {
+		if ($rowOpts->[0]->{halign} =~ /^(?:\s|\|)*!\{\s*\\vrule\s+width\s+([^}]*?)\s*\}/) {
 			$ptxleft = 'minor'  if ($1);
 			$ptxleft = 'minor'  if ($1 == '0.04em');
 			$ptxleft = 'medium' if ($1 == '0.07em');
@@ -639,18 +641,18 @@ sub Row {
 
 		# col level
 		$css .= css('text-align', 'center')
-			if ($alignment[$i]->{halign} eq 'c');
+			if (defined($alignment[$i]->{halign}) && $alignment[$i]->{halign} eq 'c');
 		$css .= css('text-align', 'right')
-			if ($alignment[$i]->{halign} eq 'r');
+			if (defined($alignment[$i]->{halign}) && $alignment[$i]->{halign} eq 'r');
 		$css .= css('width', $alignment[$i]->{width})
 			if ($alignment[$i]->{width});
 		$css .= css('font-weight', 'bold')
-			if ($alignment[$i]->{tex} =~ /\\bfseries/);
+			if (defined($alignment[$i]->{tex}) && $alignment[$i]->{tex} =~ /\\bfseries/);
 		$css .= css('font-style', 'italic')
-			if ($alignment[$i]->{tex} =~ /\\itshape/);
+			if (defined($alignment[$i]->{tex}) && $alignment[$i]->{tex} =~ /\\itshape/);
 		$css .= css('font-family', 'monospace')
-			if ($alignment[$i]->{tex} =~ /\\ttfamily/);
-		if ($alignment[$i]->{tex} =~ /\\color(\[HTML\])?{(.*?)[}!]/) {
+			if (defined($alignment[$i]->{tex}) && $alignment[$i]->{tex} =~ /\\ttfamily/);
+		if (defined($alignment[$i]->{tex}) && $alignment[$i]->{tex} =~ /\\color(\[HTML\])?{(.*?)[}!]/) {
 			$css .= css('color', ($1 ? '#' : '') . $2);
 		}
 
@@ -660,7 +662,7 @@ sub Row {
 			my $count = $1 =~ tr/\|//;
 			$css .= css('border-left', "solid ${count}px");
 		}
-		if ($cellOpts->{halign} =~ /^(\s\|)*!{\\vrule\s+width\s+([^}]*?)}/
+		if ($cellOpts->{halign} =~ /^(\s\|)*!\{\\vrule\s+width\s+([^}]*?)\}/
 			&& $i == 0)
 		{
 			$css .= css('border-left', "solid $2");
@@ -669,7 +671,7 @@ sub Row {
 			my $count = $1 =~ tr/\|//;
 			$css .= css('border-right', "solid ${count}px");
 		}
-		if ($cellOpts->{halign} =~ /!{\\vrule\s+width\s+([^}]*?)}\s*$/) {
+		if ($cellOpts->{halign} =~ /!\{\\vrule\s+width\s+([^}]*?)\}\s*$/) {
 			$css .= css('border-right', "solid $1");
 		}
 		$css .= css('text-align', 'left') if ($cellOpts->{halign} =~ /^l/);
@@ -1098,7 +1100,7 @@ sub tag {
 	my ($inner, $name, $attributes) = @_;
 	my $return = "<$name";
 	for my $x (lex_sort(keys %$attributes)) {
-		$return .= qq( $x="$attributes->{$x}") if ($attributes->{$x} ne '');
+		$return .= qq( $x="$attributes->{$x}") if (defined($attributes->{$x}) && $attributes->{$x} ne '');
 	}
 	if ($inner) {
 		$return .= ">\n";
@@ -1114,7 +1116,7 @@ sub tag {
 sub getRuleCSS {
 	my $input  = shift;
 	my $output = '';
-	if ($input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
+	if (defined($input) && $input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
 		$output = "solid $1px" if $1;
 	} elsif ($input) {
 		$output = "solid $input" if $input;
@@ -1123,7 +1125,8 @@ sub getRuleCSS {
 }
 
 sub getPTXthickness {
-	my $input  = shift;
+	# assume that the default input is 2 if not defined.
+	my $input  = shift // 2;
 	my $output = '';
 	if ($input == 1) {
 		$output = "minor";
