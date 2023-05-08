@@ -1299,6 +1299,8 @@ sub ParseAlignment {
 			$align[$i]->{tex} = $1;
 
 			# could parse these further for color identification, etc
+		} else {
+			main::WARN_MESSAGE("Token $token in texalignment could not be parsed");
 		}
 	}
 
