@@ -2936,7 +2936,6 @@ sub image {
 			# We're going to create PDF files with our TeX (using LaTeX), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
-				$out = "\\parbox{\\linewidth}{" if $desc;
 				if ($valign eq 'top') {
 					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-\height + \strutheight}'
 						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
@@ -2948,9 +2947,11 @@ sub image {
 				}
 				if ($desc) {
 					$out .=
-						'\\\\ '
+						"\\newline\\parbox{\\linewidth}{{\\scshape\\underline{"
 						. maketext('image description')
-						. "\\footnotemark}\\footnotetext{$description_details}\n";
+						. "}}\\newline$description_details\\hfill\\(\\overline{\\mbox{\\scshape "
+						. maketext('end image description')
+						. "}}\\)}\n";
 				}
 			}
 		} elsif ($displayMode eq 'HTML_MathJax'
