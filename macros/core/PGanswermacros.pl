@@ -222,7 +222,7 @@ sub get_var_array {
 }
 
 ## Internal routine that converts limits into the standard array of arrays format
-##	Some of the cases are probably unneccessary, but better safe than sorry
+##	Some of the cases are probably unnecessary, but better safe than sorry
 ##
 ## IN:	one of the following:
 ##			an undefined value (i.e., no limits were specified)
